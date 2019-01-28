@@ -1,0 +1,58 @@
+version: '3'
+
+services:
+
+  library.web:
+    build: ./Library.Web
+    image: library:web
+    networks:
+      - api
+    ports:
+      - "80:80"
+    environment:
+      - LibraryWebApiServiceHost=http://library.webapi
+    depends_on:
+      - library.webapi
+
+  library.webapi:
+    build: ./Library.WebApi
+    image: library:webapi
+    restart: on-failure
+    networks:
+      - api
+    ports:
+      - "81:80"
+    depends_on:
+      - library.rabbit
+
+  library.notificationservice2:
+    build: ./Library.NotificationService2
+    image: microservices:clients
+    restart: on-failure
+    networks:
+      - api
+    ports:
+      - "82:80"
+    depends_on:
+      - library.webapi
+      - library.rabbit
+        
+  library.rabbit:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "5672" ]
+      interval: 5s
+      timeout: 15s
+      retries: 1
+
+networks:
+  api:
+    driver: bridge
