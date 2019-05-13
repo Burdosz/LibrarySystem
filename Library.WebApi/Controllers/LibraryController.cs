@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Library.WebApi.Models;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Library.WebApi.Controllers
@@ -8,6 +11,8 @@ namespace Library.WebApi.Controllers
     [Route("api/[controller]")]
     public class LibraryController : Controller
     {
+        private readonly IPublishEndpoint _publishEndpoint;
+
         private readonly List<LibraryResource> _libraryBooks = new List<LibraryResource>()
         {
             new LibraryResource()
@@ -36,7 +41,7 @@ namespace Library.WebApi.Controllers
             },
             new LibraryResource()
             {
-                Id = 2,
+                Id = 10,
                 Book = new Book()
                 {
                     Title = "Mikolajek",
@@ -95,11 +100,29 @@ namespace Library.WebApi.Controllers
                 }
             }
         };
+
+        public LibraryController(IPublishEndpoint publishEndpoint)
+        {
+            _publishEndpoint = publishEndpoint;
+        }
         
         [HttpGet("rented")]
         public IEnumerable<LibraryResource> GetRented()
         {
             return _libraryBooks;
+        }
+        
+        [HttpGet("rent/{id}")]
+        public async Task<ActionResult> Rent(int id)
+        {
+            var rentedBook = _libraryBooks.SingleOrDefault(r => r.Id == id);
+            if (rentedBook == null)
+            {
+                return NotFound($"Book with id: {id} does not exist");
+            }
+            
+            await _publishEndpoint.Publish<BookRented>(new {Id = id, Title = rentedBook.Book.Title});
+            return Ok();
         }
     }
 }

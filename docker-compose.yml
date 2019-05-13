@@ -23,7 +23,9 @@ services:
     ports:
       - "81:80"
     depends_on:
-      - library.rabbit
+      - rabbit
+    links:
+      - rabbit
  
   library.notificationservice2:
     build: ./Library.NotificationService2
@@ -35,15 +37,16 @@ services:
       - "82:80"
     depends_on:
       - library.webapi
-      - library.rabbit
+      - rabbit
         
-  library.rabbit:
+  rabbit:
     image: rabbitmq:management
+    hostname: rabbit
     ports:
       - "5672:5672"
       - "15672:15672"
-    volumes:
-      - rabbitmq_data
+#    volumes:
+#      - rabbitmq_data
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin
@@ -52,6 +55,8 @@ services:
       interval: 5s
       timeout: 15s
       retries: 1
+    networks:
+      - api
 
 networks:
   api:
