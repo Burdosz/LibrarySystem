@@ -24,7 +24,7 @@ services:
       - "81:80"
     depends_on:
       - library.rabbit
-
+ 
   library.notificationservice2:
     build: ./Library.NotificationService2
     image: microservices:clients

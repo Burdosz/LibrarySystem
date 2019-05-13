@@ -32,6 +32,7 @@ namespace Library.Web
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            //IMPORTANT TO ADD!
             services.Configure<EnvironmentConfig>(Configuration);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
