@@ -8,7 +8,7 @@ services:
     networks:
       - api
     ports:
-      - "80:80"
+      - "90:80"
     environment:
       - LibraryWebApiServiceHost=http://library.webapi
     depends_on:
@@ -21,13 +21,13 @@ services:
     networks:
       - api
     ports:
-      - "81:80"
+      - "91:80"
     depends_on:
       - rabbit
     links:
       - rabbit
  
-  library.notificationservice2:
+  library.notificationservice:
     build: ./Library.NotificationService2
     image: microservices:clients
     restart: on-failure
@@ -45,8 +45,6 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-#    volumes:
-#      - rabbitmq_data
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=admin
