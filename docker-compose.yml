@@ -18,6 +18,10 @@ services:
     build: ./Library.WebApi
     image: library:webapi
     restart: on-failure
+    environment:
+      - RABBITMQ__SERVERADDRESS=rabbitmq://rabbit
+      - RABBITMQ__PASSWORD=admin
+      - RABBITMQ__USERNAME=admin
     networks:
       - api
     ports:
@@ -31,10 +35,14 @@ services:
     build: ./Library.NotificationService2
     image: microservices:clients
     restart: on-failure
+    environment:
+      - RABBITMQ__SERVERADDRESS=rabbitmq://rabbit
+      - RABBITMQ__PASSWORD=admin
+      - RABBITMQ__USERNAME=admin
     networks:
       - api
     ports:
-      - "82:80"
+      - "92:80"
     depends_on:
       - library.webapi
       - rabbit

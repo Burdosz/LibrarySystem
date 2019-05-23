@@ -19,6 +19,7 @@
           <Version>5.3.2</Version>
         </PackageReference>
         <PackageReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
     </ItemGroup>
 
 </Project>

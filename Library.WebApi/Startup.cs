@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GreenPipes;
+using Library.WebApi.Configuratrion;
 using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,34 +30,30 @@ namespace Library.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            
+
+            var rabbitConfiguration = Configuration.GetSection("RabbitMQ").Get<RabbitMqConfiguration>();
+
             services.AddMassTransit(x =>
-            {
-                //x.AddConsumer<OrderConsumer>();
-                
+            {   
                 x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
                 {
-                    var host = cfg.Host(new Uri("rabbitmq://rabbit"), hostConfigurator => 
+                    var host = cfg.Host(new Uri(rabbitConfiguration.ServerAddress), hostConfigurator => 
                     { 
-                        hostConfigurator.Username("admin");
-                        hostConfigurator.Password("admin");
+                        hostConfigurator.Username(rabbitConfiguration.Username);
+                        hostConfigurator.Password(rabbitConfiguration.Password);
                     });
 
                     cfg.ReceiveEndpoint(host, "library-webapi", ep =>
                     {
                         ep.PrefetchCount = 16;
                         ep.UseMessageRetry(r => r.Interval(2, 100));
-
-                        //ep.ConfigureConsumer<OrderConsumer>(provider);
                     });
                 }));
             });
+
             
             services.AddSingleton<IPublishEndpoint>(provider => provider.GetRequiredService<IBusControl>());
-            //services.AddSingleton<ISendEndpointProvider>(provider => provider.GetRequiredService<IBusControl>());
             services.AddSingleton<IBus>(provider => provider.GetRequiredService<IBusControl>());
-
-            //services.AddScoped(provider => provider.GetRequiredService<IBus>().CreateRequestClient<DoSomething>());
 
             services.AddSingleton<IHostedService, BusService>();
         }
