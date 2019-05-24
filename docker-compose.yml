@@ -33,7 +33,7 @@ services:
  
   library.notificationservice:
     build: ./Library.NotificationService2
-    image: microservices:clients
+    image: library:notificationservice
     restart: on-failure
     environment:
       - RABBITMQ__SERVERADDRESS=rabbitmq://rabbit
