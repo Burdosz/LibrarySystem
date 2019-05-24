@@ -1,35 +1,6 @@
 version: '3'
 
 services:
-
-  library.web:
-    build: ./Library.Web
-    image: library:web
-    networks:
-      - api
-    ports:
-      - "90:80"
-    environment:
-      - LibraryWebApiServiceHost=http://library.webapi
-    depends_on:
-      - library.webapi
-
-  library.webapi:
-    build: ./Library.WebApi
-    image: library:webapi
-    restart: on-failure
-    environment:
-      - RABBITMQ__SERVERADDRESS=rabbitmq://rabbit
-      - RABBITMQ__PASSWORD=admin
-      - RABBITMQ__USERNAME=admin
-    networks:
-      - api
-    ports:
-      - "91:80"
-    depends_on:
-      - rabbit
-    links:
-      - rabbit
  
   library.notificationservice:
     build: ./Library.NotificationService2
@@ -44,7 +15,6 @@ services:
     ports:
       - "92:80"
     depends_on:
-      - library.webapi
       - rabbit
         
   rabbit:
